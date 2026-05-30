@@ -41,22 +41,96 @@ That's it. Cron handles the rest every morning.
 
 ## Commands
 
-| Command | Description |
-|---|---|
-| `5hr init` | Interactive setup wizard |
-| `5hr schedule` | Install cron jobs to auto-warmup sessions |
-| `5hr settings` | View and edit config interactively |
-| `5hr today` | See your recommended session windows |
-| `5hr explain` | Why 5hr recommends that start time |
-| `5hr start <provider>` | Manually start a tracked session |
-| `5hr stop [provider]` | End a session |
-| `5hr stats` | Usage analytics and utilization score |
-| `5hr doctor` | Check your installation |
+### `5hr init`
+Interactive setup wizard. Asks for your working hours, timezone, provider, and how early to fire the warmup before you start work. Run once, then `5hr schedule`.
+
+### `5hr schedule`
+Installs OS-native cron jobs (Linux/macOS) or scheduled tasks (Windows) that fire a silent warmup at the right time every weekday. Shows you exactly when warmups fire and when your resets land before confirming.
+
+```
+Warmup 1   fires 08:00  →  reset at 13:00
+Warmup 2   fires 13:05  →  reset at 18:05
+```
+
+Re-run after changing settings to reinstall with new times.
+
+### `5hr settings`
+View your current config and edit any field interactively — warmup offset, working hours, provider, session timeout. No config file editing needed.
+
+### `5hr today`
+Shows your recommended session windows for today based on your working hours and past session history. After enough sessions, recommendations shift to match your actual coding rhythm.
+
+```
+Window 1    08:00 → 13:00
+Window 2    13:45 → 18:45
+
+Estimated utilization   82%
+```
+
+### `5hr explain`
+Shows the reasoning behind today's recommendation — median historical start time, minutes saved vs starting at work hours, whether a second window fits, and estimated quota gain.
+
+```
+Recommended start: 10:30
+
+Why?
+• Most coding activity begins around 10:45
+• Starting at 09:00 wastes approximately 1h 30m
+• Delaying allows a second usable 5hr cycle today
+
+Estimated gain: +17%
+```
+
+### `5hr start <provider>`
+Manually start a tracked session and launch the provider TUI. Use `--warmup` flag for headless mode (cron uses this automatically).
+
+```bash
+5hr start claude   # opens Claude Code + starts tracking
+5hr start codex    # opens Codex CLI + starts tracking
+```
+
+### `5hr stop [provider]`
+End a session and record its duration. Omit provider to stop all active sessions.
+
+```bash
+5hr stop           # stops all active sessions
+5hr stop claude    # stops claude only
+```
+
+### `5hr stats`
+Usage analytics computed from your local session history.
+
+```
+Total Sessions    48   (claude: 32, codex: 16)
+
+Avg Duration      2h 17m
+
+Utilization       82%   ████████░░
+
+Wasted Time       11h 32m  (estimated)
+
+Trend             ↑ +8% vs last week
+```
+
+### `5hr doctor`
+Health check for your installation. Verifies provider binaries, config validity, OS scheduler availability, and storage permissions.
+
+```
+✓  claude binary in PATH
+✓  codex binary in PATH
+✓  config valid
+✓  OS scheduler available (cron)
+✓  storage dir readable/writable
+```
+
+---
 
 ## Providers
 
-- `claude` — Claude Code (`claude -p` for headless warmup)
-- `codex` — OpenAI Codex CLI (`codex -q` for headless warmup)
+| Provider | Binary | Warmup flag |
+|---|---|---|
+| Claude Code | `claude` | `claude -p "hello"` |
+| Codex CLI | `codex` | `codex -q "hello"` |
 
 ---
 
