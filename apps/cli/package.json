@@ -1,13 +1,14 @@
 {
   "name": "@oct8/5hr",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Quota-aware scheduling for AI coding sessions",
   "bin": {
     "5hr": "./dist/index.js"
   },
   "main": "dist/index.js",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "keywords": [
     "claude",
