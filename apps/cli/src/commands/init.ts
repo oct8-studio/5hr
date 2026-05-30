@@ -24,6 +24,12 @@ export const initCmd = new Command('init')
       validate: (v) => /^\d{2}:\d{2}$/.test(v) || 'Use HH:MM format',
     })
 
+    const warmupOffsetHours = await number({
+      message: 'Fire warmup how many hours BEFORE your work start? (starts the rolling clock early so reset hits during your day):',
+      default: 2,
+      validate: (v) => (v !== undefined && v >= 0 && v <= 8) || 'Between 0 and 8',
+    })
+
     const hasFocus = await confirm({
       message: 'Do you have a regular deep-focus period?',
       default: false,
@@ -54,23 +60,35 @@ export const initCmd = new Command('init')
 
     const sessionTimeoutMinutes = await number({
       message: 'Auto-timeout inactive sessions after (minutes):',
-      default: 30,
+      default: 60,
     })
+
+    const offset = warmupOffsetHours ?? 2
+    const [wh, wm] = workStart.split(':').map(Number)
+    const warmupMins = wh * 60 + wm - offset * 60
+    const warmupH = Math.floor(((warmupMins % 1440) + 1440) % 1440 / 60)
+    const warmupM = ((warmupMins % 1440) + 1440) % 1440 % 60
+    const warmupStr = `${String(warmupH).padStart(2, '0')}:${String(warmupM).padStart(2, '0')}`
+    const resetH = (warmupH + 5) % 24
+    const resetStr = `${String(resetH).padStart(2, '0')}:${String(warmupM).padStart(2, '0')}`
 
     const config: Config = {
       workingHours: { start: workStart, end: workEnd },
       timezone,
       focusPeriods,
       primaryProvider,
-      sessionTimeoutMinutes: sessionTimeoutMinutes ?? 30,
+      sessionTimeoutMinutes: sessionTimeoutMinutes ?? 60,
+      warmupOffsetHours: offset,
     }
 
     saveConfig(config)
 
-    console.log('\n  Config saved to ~/.5hr/config.json')
-    console.log(`\n  Working hours  ${workStart} → ${workEnd}`)
-    console.log(`  Timezone       ${timezone}`)
-    console.log(`  Provider       ${primaryProvider}`)
-    console.log(`  Timeout        ${sessionTimeoutMinutes}m`)
-    console.log('\n  Run `5hr today` to see your recommended schedule.\n')
+    console.log('\n  Config saved to ~/.5hr/config.json\n')
+    console.log(`  Working hours   ${workStart} → ${workEnd}`)
+    console.log(`  Timezone        ${timezone}`)
+    console.log(`  Provider        ${primaryProvider}`)
+    console.log(`  Warmup fires    ${warmupStr}  (${offset}h before work start)`)
+    console.log(`  First reset     ${resetStr}  (right in your working day)`)
+    console.log(`  Timeout         ${sessionTimeoutMinutes}m`)
+    console.log('\n  Run `5hr schedule` to install cron jobs.\n')
   })

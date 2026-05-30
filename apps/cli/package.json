@@ -1,6 +1,6 @@
 {
   "name": "@oct8/5hr",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Quota-aware scheduling for AI coding sessions",
   "bin": {
     "5hr": "./dist/index.js"

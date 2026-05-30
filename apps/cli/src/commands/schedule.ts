@@ -6,7 +6,7 @@ import { installCronJobs, checkCronAvailable } from '@5hr/scheduler'
 import { checkAndExpireSessions } from '../utils/timeout.js'
 
 export const scheduleCmd = new Command('schedule')
-  .description('Install OS-native scheduled jobs for AI sessions')
+  .description('Install OS-native cron jobs to warmup AI sessions automatically')
   .action(async () => {
     if (!hasConfig()) {
       console.error('  No config found. Run `5hr init` first.')
@@ -23,25 +23,28 @@ export const scheduleCmd = new Command('schedule')
     const config = loadConfig()!
     const sessions = loadSessions()
     const state = loadState()
-
     const plan = computePlan(config, sessions, state)
     const provider = config.primaryProvider
+    const offset = config.warmupOffsetHours ?? 2
 
-    console.log(`\n  Will auto-warmup ${provider} (Mon–Fri):\n`)
-    plan.windows.forEach((w, i) => {
-      console.log(`  Window ${i + 1}  ${w.start}  →  sends a real message to start your rolling 5hr clock`)
+    console.log(`\n  Auto-warmup schedule for ${provider} (Mon–Fri)\n`)
+    console.log(`  Offset: ${offset}h before your ${config.workingHours.start} work start\n`)
+
+    plan.warmupSchedule.forEach((w, i) => {
+      console.log(`  Warmup ${i + 1}   fires ${w.warmupTime}  →  reset at ${w.resetTime}`)
     })
-    console.log(`\n  By the time you sit down, your reset is already counting down.`)
-    console.log(`  You keep the full productive window. No wasted quota.\n`)
 
-    const ok = await confirm({ message: 'Install these scheduled jobs?', default: true })
+    console.log(`\n  When you sit down at ${config.workingHours.start}, window ${plan.warmupSchedule[0].resetTime} reset`)
+    console.log(`  is already counting down. You get maximum quota during your productive hours.\n`)
+
+    const ok = await confirm({ message: 'Install these cron jobs?', default: true })
     if (!ok) {
       console.log('  Cancelled.\n')
       return
     }
 
-    installCronJobs(plan.windows, provider)
+    installCronJobs(plan.warmupSchedule, provider)
 
-    console.log(`\n  Done. Cron will warmup ${provider} silently at those times.`)
-    console.log(`  To remove: crontab -e and delete lines containing # 5hr:${provider}\n`)
+    console.log(`\n  Done. ${provider} will warmup silently at ${plan.warmupSchedule.map(w => w.warmupTime).join(' and ')}.`)
+    console.log(`  To remove: crontab -e → delete lines containing # 5hr:${provider}\n`)
   })

@@ -6,6 +6,7 @@ export interface Config {
   focusPeriods: Array<{ start: string; end: string }>
   primaryProvider: ProviderName
   sessionTimeoutMinutes: number
+  warmupOffsetHours: number  // how many hours BEFORE work start to fire warmup (default 2)
 }
 
 export interface Session {
@@ -25,8 +26,14 @@ export interface WindowRecommendation {
   end: string
 }
 
+export interface WarmupSchedule {
+  warmupTime: string   // when cron fires (before work start)
+  resetTime: string    // when the 5hr window resets (warmupTime + 5h)
+}
+
 export interface PlanResult {
   windows: WindowRecommendation[]
+  warmupSchedule: WarmupSchedule[]
   utilizationPct: number
   providerStatus: Partial<Record<ProviderName, 'active' | 'idle'>>
 }
