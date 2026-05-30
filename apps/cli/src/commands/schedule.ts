@@ -27,11 +27,12 @@ export const scheduleCmd = new Command('schedule')
     const plan = computePlan(config, sessions, state)
     const provider = config.primaryProvider
 
-    console.log(`\n  Will schedule ${provider} sessions:\n`)
+    console.log(`\n  Will auto-warmup ${provider} (Mon–Fri):\n`)
     plan.windows.forEach((w, i) => {
-      console.log(`  Window ${i + 1}  ${w.start} (Mon–Fri)`)
+      console.log(`  Window ${i + 1}  ${w.start}  →  sends a real message to start your rolling 5hr clock`)
     })
-    console.log()
+    console.log(`\n  By the time you sit down, your reset is already counting down.`)
+    console.log(`  You keep the full productive window. No wasted quota.\n`)
 
     const ok = await confirm({ message: 'Install these scheduled jobs?', default: true })
     if (!ok) {
@@ -41,5 +42,6 @@ export const scheduleCmd = new Command('schedule')
 
     installCronJobs(plan.windows, provider)
 
-    console.log(`\n  Scheduled. To remove, run: crontab -e and delete lines with # 5hr:${provider}\n`)
+    console.log(`\n  Done. Cron will warmup ${provider} silently at those times.`)
+    console.log(`  To remove: crontab -e and delete lines containing # 5hr:${provider}\n`)
   })

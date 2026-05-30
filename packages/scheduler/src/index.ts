@@ -9,8 +9,8 @@ function toCronExpression(timeStr: string): { hour: number; minute: number } {
 
 function buildCronEntry(time: string, provider: string): string {
   const { hour, minute } = toCronExpression(time)
-  const bin = process.execPath.replace(/node$/, '5hr')
-  return `${minute} ${hour} * * 1-5 ${bin} start ${provider}`
+  // --warmup: headless message to start rolling clock, no TUI
+  return `${minute} ${hour} * * 1-5 5hr start ${provider} --warmup`
 }
 
 export function installCronJobs(
@@ -75,7 +75,7 @@ function installWindowsTask(time: string, provider: string): void {
   spawnSync('schtasks', [
     '/create',
     '/tn', `5hr-${provider}`,
-    '/tr', `5hr start ${provider}`,
+    '/tr', `5hr start ${provider} --warmup`,
     '/sc', 'DAILY',
     '/st', startTime,
     '/f',
