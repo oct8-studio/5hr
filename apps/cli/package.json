@@ -1,0 +1,44 @@
+{
+  "name": "@oct8/5hr",
+  "version": "0.1.0",
+  "description": "Quota-aware scheduling for AI coding sessions",
+  "bin": {
+    "5hr": "./dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "claude",
+    "codex",
+    "ai",
+    "cli",
+    "quota",
+    "scheduler"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run --passWithNoTests",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^5.0.0",
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "@5hr/core": "workspace:*",
+    "@5hr/planner": "workspace:*",
+    "@5hr/scheduler": "workspace:*",
+    "@5hr/providers": "workspace:*",
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.4.0"
+  }
+}
